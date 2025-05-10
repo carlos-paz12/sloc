@@ -1,0 +1,96 @@
+Checks: >
+  -*,
+  bugprone-*
+  misc-*,
+  modernize-*,
+  performance-*,
+  portability-*,
+  readability-*,
+  -fuchsia-trailing-return,
+  -readability-magic-numbers,
+  -modernize-use-nodiscard,
+  -modernize-use-trailing-return-type,
+  -readability-braces-around-statements,
+  -readability-redundant-access-specifiers,
+  -readability-redundant-member-init,
+  -readability-redundant-string-init,
+  -readability-identifier-length,
+CheckOptions:
+  - { key: readability-identifier-naming.NamespaceCase, value: lower_case }
+  - { key: readability-identifier-naming.ClassCase, value: CamelCase }
+  - { key: readability-identifier-naming.StructCase, value: CamelCase }
+  - { key: readability-identifier-naming.FunctionCase, value: lower_case }
+  - { key: readability-identifier-naming.VariableCase, value: lower_case }
+  - { key: readability-identifier-naming.PrivateMemberCase, value: lower_case }
+  - { key: readability-identifier-naming.PrivateMemberPrefix, value: m_ }
+  - { key: readability-identifier-naming.EnumCase, value: CamelCase }
+  - { key: readability-identifier-naming.EnumConstantCase, value: UPPER_CASE }
+  - { key: readability-identifier-naming.GlobalConstantCase, value: UPPER_CASE }
+# A configuração 'Checks' define quais verificações o clang-tidy vai realizar no código.
+#
+# - '-*' ativa todos os checks padrão do clang-tidy, garantindo que todas as verificações
+#   relevantes sejam aplicadas.
+#
+# - 'bugprone-*' ativa os checks relacionados a práticas propensas a bugs. Isso ajuda a evitar
+#   erros comuns, como o uso incorreto de ponteiros, referências ou práticas que podem resultar
+#   em falhas difíceis de depurar.
+#
+# - 'misc-*' ativa verificações gerais e diversas, como sugestões para melhorar a qualidade do código
+#   que não se encaixam nas categorias específicas de performance, legibilidade, etc.
+#
+# - 'modernize-*' inclui verificações para modernizar o código, como a conversão de funções antigas
+#   para novas construções da linguagem, o que pode aumentar a legibilidade e a eficiência do código.
+#
+# - 'performance-*' ativa verificações que visam otimizar o desempenho do código, identificando
+#   práticas que podem ser lentas ou ineficientes.
+#
+# - 'portability-*' garante que o código seja portável entre diferentes sistemas e arquiteturas,
+#   evitando dependências de características específicas de plataforma.
+#
+# - 'readability-*' foca em melhorar a legibilidade do código, como verificar o uso de nomes
+#   adequados para variáveis, funções, classes, etc.
+#
+# As configurações específicas para desativar certos checks são feitas ao adicionar o prefixo
+# '-' antes do nome do check, como:
+#
+# - 'fuchsia-trailing-return': Desativa uma verificação específica para o Fuchsia que sugere
+#   o uso de tipos de retorno finais. Isso é desativado porque pode não ser relevante para o código
+#   ou estilo adotado.
+#
+# - 'readability-magic-numbers': Desativa a verificação contra o uso de números "mágicos" no código,
+#   o que pode ser uma escolha pessoal dependendo do estilo de codificação adotado.
+#
+# - 'modernize-use-nodiscard' e 'modernize-use-trailing-return-type' são desativados, o que
+#   impede a recomendação de adicionar atributos como `[[nodiscard]]` e o tipo de retorno no final da
+#   declaração de funções, que pode ser um estilo moderno, mas que não se encaixa no padrão atual.
+#
+# - 'readability-braces-around-statements': Desativa a recomendação de envolver instruções de controle
+#   como `if` e `for` com chaves, permitindo a escrita de código mais conciso, se desejado.
+#
+# - 'readability-redundant-*': Desativa várias verificações para redundâncias que podem ser percebidas
+#   como excessivas ou desnecessárias em um projeto.
+#
+# **CheckOptions**:
+# As opções de "CheckOptions" definem regras específicas de nomenclatura para os identificadores no código.
+#
+# - 'NamespaceCase': Define que os nomes de namespaces devem ser escritos em **letras minúsculas**,
+#   garantindo consistência e legibilidade.
+#
+# - 'ClassCase' e 'StructCase': Define que o nome de classes e structs deve seguir o padrão **CamelCase**,
+#   que é amplamente aceito para esses tipos de identificadores.
+#
+# - 'FunctionCase' e 'VariableCase': Os nomes de funções e variáveis devem ser em **letras minúsculas**
+#   (estilo snake_case), o que é uma prática comum para garantir clareza e legibilidade.
+#
+# - 'PrivateMemberCase': Os membros privados devem seguir o padrão **letras minúsculas** (snake_case),
+#   garantindo que sejam facilmente reconhecíveis.
+#
+# - 'PrivateMemberPrefix': Define o prefixo `m_` para membros privados, uma prática comum para indicar
+#   claramente que uma variável é privada e pertencente à classe.
+#
+# - 'EnumCase' e 'EnumConstantCase': Define que os nomes de enums e constantes dentro de enums devem
+#   seguir o estilo **CamelCase** e **UPPER_CASE**, respectivamente, para diferenciá-los de outras variáveis
+#   e manter a consistência.
+#
+# - 'GlobalConstantCase': Define que as constantes globais devem ser em **UPPER_CASE**, um estilo amplamente
+#   adotado para variáveis que não devem ser alteradas.
