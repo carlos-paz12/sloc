@@ -1,6 +1,12 @@
-﻿# 🔐 sloc — source lines of code
+<h1 align="center">💻 sloc — source lines of code</h1>
 
-**sloc** is a command-line application metric used to measure the number of empty line of codes and comments in a program's source code. 
+<p align="center">
+    <b>sloc</b> is a command-line application metric used to measure the number of empty line of codes and comments in a program's source code.
+</p>
+
+<p align="center">
+    <img src="docs/sloc.png" alt="Exemplo de execução" width="1020">
+</p>
 
 ## 👨‍💻 Authors
 
@@ -24,14 +30,14 @@ git clone https://github.com/selan-active-classes/t03-projeto-sloc-qwerty
 cd t03-projeto-sloc-qwerty
 ```
 
-3. Compile e construa o programa usando `cmake`:
+3. Compile and build the program using `cmake`:
 
 ```bash
 cmake -S . -B build
 cmake --build build
 ```
 
-4. Execute:
+4. Run:
 
 ```bash
 ./build/sloc <options>
@@ -57,35 +63,44 @@ cd t03-projeto-sloc-qwerty
 
 ```bash
 mkdir build
-cd build
 ```
 
-3. Create a `build` directory:
-```
-mkdir build
-```
+4. Compile with `g++`:
 
-4. Compile with `g++`
-
-```
-g++ -Wall -Wextra -pedantic -std=c++17 -O3 -I src src/main.cpp -o ./build/sloc
+```bash
+g++ -I src/common/ -I src/core/ src/app/main.cpp -o ./build/sloc -Wall -Wextra -pedantic -std=c++17 -O2
 ```
 
 or `clang++`
 
-```
-clang++ -Wall -Wextra -pedantic -std=c++17 -O3 -I src src/main.cpp -o ./build/sloc
+```bash
+clang++ -I src/common/ -I src/core/ src/app/main.cpp -o ./build/sloc -Wall -Wextra -pedantic -std=c++17 -O2
 ```
 
-5. Run
-```
-./build/sloc
-```
-4. Run:
+5. Run:
 
 ```bash
-./sloc <options>
+./build/sloc <options>
 ```
+
+### ⚙️ Using bash script
+
+You can also build and compile sloc using just one command line. Run the script ()[configure.sh] as sudo and wait for it to finish executing.
+
+1. Compile and build:
+
+```bash
+./configure.sh
+```
+
+2. Run:
+
+The `configure.sh` already globally installs sloc on your machine. Just make the direct call:
+
+```bash
+sloc <options>
+```
+
 ---
 
 > [!tip]
@@ -93,36 +108,11 @@ clang++ -Wall -Wextra -pedantic -std=c++17 -O3 -I src src/main.cpp -o ./build/sl
 
 ---
 
-## ✅ Grading
-
-Preencha os itens que você implementou, indicando qual a nota esperada para cada item.
-
-| Item                                                | Valor máximo | Valor esperado |
-| --------------------------------------------------- | :----------: | :------------: |
-| Read one or multiple source file                    |      10      |                |
-| Read a list of files from a directory               |      10      |                |
-| Read a list of files recursively from a directory   |      8       |                |
-| Show help as requested `-h`                         |      4       |                |
-| Treat error situations                              |      10      |                |
-| Show correct number of blank lines                  |      5       |                |
-| Show correct number of comment lines                |      10      |                |
-| Show correct number of doc comment lines            |      10      |                |
-| Show correct number of code lines                   |      10      |                |
-| Show correct number of total lines                  |      5       |                |
-| Show the type of source file                        |      5       |                |
-| Show percentages as requested                       |      10      |                |
-| Show consolidation at the bottom of a table         |      5       |                |
-| Table is formatted as requested                     |      8       |                |
-| The project contains at least one struct or classes |      5       |                |
-| Overall evaluation of the program                   |      5       |                |
-
-## ✨ Extras
-
-> TODO
-
 ## ⚠️ Problems found or limitations
 
-> TODO
+### Programming languages support
+
+The current implementation of **sloc** has limited support for programming languages, being compatible exclusively with C and C++ files. This means that analysis features such as counting lines of code, comments and blank lines are only adjusted to the syntax and structure of these two languages. Future versions may include support for other popular languages, such as C#, Rust, Java and others.
 
 ---
 
