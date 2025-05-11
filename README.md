@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-    <img src="docs/sloc.png" alt="Exemplo de execução" width="1020">
+    <img src="images/sloc.png" alt="Exemplo de execução" width="1020">
 </p>
 
 ## 👨‍💻 Authors
