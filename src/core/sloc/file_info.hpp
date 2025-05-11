@@ -15,7 +15,7 @@
 #ifndef FILE_INFO_HPP
 #define FILE_INFO_HPP
 
-#include "aliases.hpp"
+#include "../common/aliases.hpp"
 #include "lang_type.hpp"
 
 /// @brief Tipo inteiro para contagem de linhas.
@@ -50,10 +50,34 @@ public:
    */
   FileInfo(str fn = "", LangType ty = LangType::UNDEF) : m_filename{ std::move(fn) }, m_type{ ty } { /* empty*/ }
 
+  /**
+   * @brief Construtor de cópia
+   *
+   * Inicializa as informações do arquivo com os valores de outro FileInfo.
+   *
+   * @param other Outro FileInfo a ser copiado
+   */
   bool operator==(const FileInfo& other) const { return m_filename == other.m_filename and m_type == other.m_type; }
 
+  /**
+   * @brief  Operador de comparação menor
+   *
+   * Compara dois FileInfo com base no nome do arquivo.
+   *
+   * @param other Outro FileInfo a ser comparado
+   * @return true se o nome do arquivo atual for menor que o outro
+   * @return false caso contrário
+   */
   bool operator<(const FileInfo& other) const { return m_filename < other.m_filename; }
 
+  /**
+   * @brief Operador de adição
+   *
+   * Adiciona as estatísticas de outro FileInfo ao atual.
+   *
+   * @param other Outro FileInfo a ser adicionado
+   * @return FileInfo& Referência ao FileInfo atual
+   */
   FileInfo& operator+=(const FileInfo& other)
   {
     n_blank_lines += other.n_blank_lines;

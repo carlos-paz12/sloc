@@ -15,7 +15,7 @@
 #ifndef LANG_TYPE_HPP
 #define LANG_TYPE_HPP
 
-#include "aliases.hpp"  // `byte`
+#include "../common/aliases.hpp"  // `byte`
 
 /**
  * @enum LangType

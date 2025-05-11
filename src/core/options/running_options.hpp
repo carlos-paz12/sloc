@@ -15,9 +15,9 @@
 #ifndef RUNNING_OPTIONS_HPP
 #define RUNNING_OPTIONS_HPP
 
-#include "aliases.hpp"       // `option`, `vec`
-#include "field_option.hpp"  // `FieldOption`
-#include "file_info.hpp"     // `FileInfo`
+#include "../common/aliases.hpp"            // `option`, `vec`
+#include "../core/filter/field_option.hpp"  // `FieldOption`
+#include "../core/sloc/file_info.hpp"       // `FileInfo`
 
 /**
  * @struct RunningOptions

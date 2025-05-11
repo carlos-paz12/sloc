@@ -20,10 +20,10 @@
 // }}}
 
 // Outro includes {{{
-#include "aliases.hpp"    // `str`, `umap`
-#include "file_info.hpp"  // `FileInfo`
-#include "state.hpp"      // `State`
-#include "utils.hpp"      // `trim()`
+#include "../common/aliases.hpp"  // `str`, `umap`
+#include "../common/utils.hpp"    // `trim()`
+#include "file_info.hpp"          // `FileInfo`
+#include "state.hpp"              // `State`
 // }}}
 
 class Sloc
@@ -33,14 +33,33 @@ private:
   char m_literal_delimiter{ '\0' };       //!< Delimitador atual de literal (ex: aspas simples `'` ou duplas `"`).
   // * '\0' é um caractere especial com valor zero (0 no código ASCII). É a representação do caractere nulo em C e C++.
 
+  /**
+   * @brief Reseta os estados da máquina de estados finita.
+   */
   void reset_states()
   {
     transition_to(State::UNDEF);  // [!] Reseta estado padrão.
     m_literal_delimiter = '\0';   // [!] Reseta delimitador de literal padrão.
   }
 
+  /**
+   * @brief Transita para um novo estado na máquina de estados.
+   *
+   * @details Esta função atualiza o estado atual da máquina de estados finita para o novo estado fornecido.
+   *
+   * @param new_state  Novo estado para o qual a máquina de estados deve transitar.
+   */
   void transition_to(State new_state) { m_current_state = new_state; }
 
+  /**
+   * @brief Lida com sequências de escape e atualiza o estado da máquina de estados.
+   *
+   * @details Esta função verifica se o token atual é uma sequência de escape e atualiza o estado da máquina de estados
+   * conforme necessário. Ela também lida com transições de estados e verifica se o caractere atual é parte de uma
+   * sequência de escape ou não.
+   *
+   * @param token  Token atual a ser processado.
+   */
   bool handle_escape(const str& token)
   {
     /* [!]
@@ -82,6 +101,15 @@ private:
     return false;
   }
 
+  /**
+   * @brief Lida com literais e atualiza o estado da máquina de estados.
+   *
+   * @details Esta função verifica se o token atual é um delimitador de literal (aspas simples ou duplas) e atualiza
+   * o estado da máquina de estados. Ela também lida com transições de estados e verifica se o caractere atual é parte
+   * de um literal ou não.
+   *
+   * @param token  Token atual a ser processado.
+   */
   bool handle_literal(const str& token)
   {
     // [!] Checa se um literal já foi aberto.
@@ -132,6 +160,19 @@ private:
     return m_current_state == State::BLOCK_COMMENT or m_current_state == State::BLOCK_REG_COMMENT or m_current_state == State::BLOCK_DOC_COMMENT;
   }
 
+  /**
+   * @brief Lida com comentários de bloco e atualiza as flags correspondentes.
+   *
+   * @details Esta função verifica se o token atual é um comentário de bloco e atualiza as flags correspondentes
+   * para indicar se a linha contém código, comentários ou está vazia. Ela também lida com transições de estados da
+   * máquina de estados finita.
+   *
+   * @param token            Token atual a ser processado.
+   * @param cursor           Posição do cursor na linha atual.
+   * @param had_code         Flag indicando se já foi encontrado código nesta linha.
+   * @param had_reg_comment  Flag indicando se já foi encontrado comentário regular nesta linha.
+   * @param had_doc_comment  Flag indicando se já foi encontrado comentário de documentação nesta linha.
+   */
   bool handle_block_comment(const str& token, size_t& cursor, flag& had_code, flag& had_reg_comment, flag& had_doc_comment)
   {
     // [!] Se já estamos dentro de um comentário de bloco...
@@ -204,7 +245,20 @@ private:
     return false;
   }
 
-  bool handle_line_comment(const str& token, flag& had_code, flag& had_reg_comment, flag& had_doc_comment, FileInfo& file)
+  /**
+   * @brief Lida com linhas de comentário e atualiza as flags correspondentes.
+   *
+   * @details Esta função verifica se a linha atual contém um comentário de linha e atualiza as flags correspondentes
+   * para indicar se a linha contém código, comentários ou está vazia. Ela também lida com transições de estados da
+   * máquina de estados finita.
+   *
+   * @param token            Token atual a ser processado.
+   * @param had_code         Flag indicando se já foi encontrado código nesta linha.
+   * @param had_reg_comment  Flag indicando se já foi encontrado comentário regular nesta linha.
+   * @param had_doc_comment  Flag indicando se já foi encontrado comentário de documentação nesta linha.
+   * @param file            Objeto `FileInfo` que contém informações sobre o arquivo a ser analisado.
+   */
+  bool handle_line_comment(const str& token, flag& had_code, flag& had_reg_comment, flag& had_doc_comment)
   {
     bool comment_line_identified{ token.size() >= 2 and token[0] == '/' and token[1] == '/' };
 
@@ -239,6 +293,19 @@ private:
     return false;  // [!] Linha de comentário não identificada.
   }
 
+  /**
+   * @brief Lida com linhas vazias e atualiza as flags correspondentes.
+   *
+   * @details Esta função verifica se a linha atual está vazia e atualiza as flags correspondentes para indicar
+   * se a linha contém código, comentários ou está vazia. Ela também lida com transições de estados da máquina de
+   * estados finita.
+   *
+   * @param line             Linha atual a ser processada.
+   * @param had_code         Flag indicando se já foi encontrado código nesta linha.
+   * @param had_reg_comment  Flag indicando se já foi encontrado comentário regular nesta linha.
+   * @param had_doc_comment  Flag indicando se já foi encontrado comentário de documentação nesta linha.
+   * @param had_blank_line   Flag indicando se a linha é vazia.
+   */
   void handle_blank_line(const str& line, flag& had_code, flag& had_reg_comment, flag& had_doc_comment, flag& had_blank_line)
   {
     if (line.empty())  // [!] Transição de estados: UNDEF -> Ø -> EMPTY
@@ -267,7 +334,19 @@ private:
       }
     }
   }
-
+  /**
+   * @brief Finaliza o processamento da linha atual e atualiza as contagens de linhas no objeto `FileInfo`.
+   *
+   * @details Esta função é chamada após o processamento de cada linha para atualizar os contadores de linhas
+   * no objeto `FileInfo`. Ela verifica se a linha contém código, comentários ou está vazia e atualiza os contadores
+   * correspondentes.
+   *
+   * @param had_code         Flag indicando se a linha contém código.
+   * @param had_reg_comment  Flag indicando se a linha contém comentário regular.
+   * @param had_doc_comment  Flag indicando se a linha contém comentário de documentação.
+   * @param had_blank_line   Flag indicando se a linha é vazia.
+   * @param file            Objeto `FileInfo` que contém informações sobre o arquivo a ser analisado.
+   */
   void finalize_line_processing(flag& had_code, flag& had_reg_comment, flag& had_doc_comment, flag& had_blank_line, FileInfo& file)
   {
     file.n_loc += static_cast<count_t>(had_code);                  // [!] Atualiza o contador de linhas de código.
@@ -282,8 +361,10 @@ private:
     }
   }
 
-  /* [!]
-   * Cada linha analisada pode ser classificada como uma das seguintes: código, comentário ou vazia. (Em alguns casos, a
+  /**
+   * @brief Processa uma linha de código e atualiza as contagens de linhas no objeto `FileInfo`.
+   *
+   * @details Cada linha analisada pode ser classificada como uma das seguintes: código, comentário ou vazia. (Em alguns casos, a
    * mesma linha está mutuamente dentro de mais de uma dessas categorias, XD).
    *
    * De toda forma, a análise precisa respeitar uma ordem de prioridade, pois certos elementos podem mascarar outros.
@@ -311,7 +392,10 @@ private:
    * executável.
    *
    * A ordem de análise final, do menor para o maior nível de prioridade, é:
-   *     Código < Linha vazia < Comentários < Literais < Escape
+   *     `Código < Linha vazia < Comentários < Literais < Escape`
+   *
+   * @param line  linha a ser processada.
+   * @param file  objeto `FileInfo` que contém informações sobre o arquivo a ser analisado.
    */
   void process_line(const str& line, FileInfo& file)
   {
@@ -359,7 +443,7 @@ private:
       }
 
       // [!] #4 Lida com linhas de comentário.
-      if (handle_line_comment(token, had_code, had_reg_comment, had_doc_comment, file))
+      if (handle_line_comment(token, had_code, had_reg_comment, had_doc_comment))
       {
         transition_to(State::UNDEF);  // [!] Transição de estados: LINE_DOC_COMMENT -> \n -> UNDEF ou LINE_REG_COMMENT -> \n -> UNDEF.
         /* [!]
@@ -386,6 +470,15 @@ private:
     finalize_line_processing(had_code, had_reg_comment, had_doc_comment, had_blank_line, file);
   }
 
+  /**
+   * @brief Lê e processa o arquivo de entrada.
+   *
+   * @details Esta função lê o arquivo de entrada linha por linha e processa cada linha usando a máquina de estados.
+   * A função `reset_states` é chamada para reiniciar os estados da máquina antes de começar o processamento.
+   * A função `process_line` é chamada para processar cada linha lida do arquivo.
+   *
+   * @param file  objeto `FileInfo` que contém informações sobre o arquivo a ser analisado.
+   */
   void read_and_process(FileInfo& file)
   {
     // [!] Abre o arquivo de entrada com o nome armazenado em `file.filename`.
@@ -410,6 +503,15 @@ private:
   }
 
 public:
+  /**
+   * @brief função que inicia a análise de um arquivo.
+   *
+   * @details Esta função inicia a análise de um arquivo, lendo e processando seu conteúdo linha por linha.
+   * A função `read_and_process` é chamada para realizar a leitura e análise do arquivo.
+   *
+   *
+   * @param file  objeto `FileInfo` que contém informações sobre o arquivo a ser analisado.
+   */
   void analyze_file(FileInfo& file)
   {
     read_and_process(file);  // [!] Inicia leitura e análise linha a linha do arquivo.

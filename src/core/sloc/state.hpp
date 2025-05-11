@@ -15,7 +15,7 @@
 #ifndef STATE_HPP
 #define STATE_HPP
 
-#include "aliases.hpp"
+#include "../common/aliases.hpp"
 
 /**
  * @enum State

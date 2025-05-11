@@ -1,3 +1,18 @@
+/**
+ * @file filter.hpp
+ *
+ * @brief Classe para filtragem de arquivos.
+ *
+ * @author José Carlos da Paz Silva (carlos.paz.707@ufrn.edu.br)
+ * @author Leandro Andrade (leandro.andrade.401@ufrn.edu.br)
+ *
+ * @version 0.1
+ *
+ * @date 2025-05-10
+ *
+ * @copyright Copyright (c) 2025
+ *
+ */
 #ifndef FILTER_HPP
 #define FILTER_HPP
 
@@ -6,12 +21,18 @@
 #include <iomanip>     // to `std::quoted`
 #include <iostream>    // to `std::cout`
 
-#include "aliases.hpp"    // to `unmap`, `str`, `vec`, `size_t`
-#include "file_info.hpp"  // to `FileInfo`
-#include "lang_type.hpp"  // to `LangType`
+#include "../common/aliases.hpp"       // to `unmap`, `str`, `vec`, `size_t`
+#include "../core/sloc/file_info.hpp"  // to `FileInfo`
+#include "../core/sloc/lang_type.hpp"  // to `LangType`
 
 namespace fs = std::filesystem;  // Alias para facilitar uso de filesystem.
 
+/*!
+ * @brief Classe responsável por filtrar arquivos de acordo com suas extensões.
+ *
+ * Esta classe contém métodos para verificar se um arquivo é válido, se já foi adicionado
+ * à lista de arquivos filtrados e para filtrar arquivos em um diretório.
+ */
 class Filter
 {
 private:
@@ -23,18 +44,41 @@ private:
     { ".h", LangType::H },
   };
 
+  /**
+   * @brief  metodo que verifica se a extensão do arquivo é válida.
+   *
+   * @param file_extension  Extensão do arquivo a ser verificada.
+   * @return true  se a extensão do arquivo for válida.
+   * @return false caso o contrário.
+   */
   static bool is_valid_file(const str& file_extension)
   {
     // [!] Usa `find` para verificar de `file_extension` faz parte das extensões suportadas.
     return supported_extensions.find(file_extension) != supported_extensions.end();
   }
 
+  /**
+   * @brief  metodo que verifica se o arquivo já foi adicionado à lista de arquivos filtrados.
+   *
+   * @param file  Arquivo a ser verificado.
+   * @param filtered_files  Lista de arquivos filtrados.
+   * @return true  se o arquivo já foi adicionado à lista.
+   * @return false caso contrário.
+   */
   static bool was_pushed(const FileInfo& file, const vec<FileInfo>& filtered_files)
   {
     // [!] Usa `std::find` para verificar se arquivo já foi adicionado na lista dos filtrados.
     return std::find(filtered_files.cbegin(), filtered_files.cend(), file) != filtered_files.end();
   }
 
+  /**
+   * @brief  metodo que tenta adicionar um arquivo à lista de arquivos filtrados.
+   *
+   * @param file  Arquivo a ser adicionado.
+   * @param filtered_files  Lista de arquivos filtrados.
+   * @return true  se o arquivo foi adicionado à lista.
+   * @return false caso contrário.
+   */
   static bool try_push_file(const fs::path& file, vec<FileInfo>& filtered_files)
   {
     /* [!]
@@ -55,14 +99,17 @@ private:
         return true;
       }
     }
-    // [!] Se não for válido, exibe uma mensagem de alerta.
-    else
-    {
-      std::cout << file << ": Sorry, " << file_extension << " files are not supported at this time.\n";
-    }
     return false;
   }
 
+  /**
+   * @brief  metodo que filtra arquivos em um diretório.
+   *
+   * @tparam IteratorType  Tipo do iterador a ser usado (recursivo ou não).
+   * @param dir_root  Diretório raiz a ser filtrado.
+   * @param filtered_files  Lista de arquivos filtrados.
+   * @return size_t  Número de arquivos adicionados à lista.
+   */
   template <typename IteratorType>
   static size_t filter_files_in_directory(const fs::path& dir_root, vec<FileInfo>& filtered_files)
   {
@@ -70,7 +117,6 @@ private:
 
     for (const auto& entry : IteratorType(dir_root))
     {
-
       // [!] Se `entry` for um arquivo e tiver sido adicionado na lista, incrementa o contador.
       if (fs::is_regular_file(entry))
       {
@@ -82,6 +128,20 @@ private:
   }
 
 public:
+  /**
+   * @brief  metodo que filtra arquivos a partir de uma lista de entradas.
+   *
+   * @details  Este método verifica se as entradas são arquivos ou diretórios e filtra os arquivos válidos.
+   * Se uma entrada for um diretório, ele filtra os arquivos dentro dele (recursivamente ou não).
+   * Se uma entrada for um arquivo, ele tenta adicioná-lo diretamente à lista de arquivos filtrados.
+   * Se uma entrada não for um arquivo ou diretório válido, uma mensagem de erro é exibida.
+   * Se uma entrada não existir, uma mensagem de erro é exibida.
+   *
+   * @param input_sources  Lista de entradas (arquivos ou diretórios) a serem filtradas.
+   * @param recursive  Se `true`, filtra arquivos recursivamente em diretórios.
+
+   * @return vec<FileInfo>  Lista de arquivos filtrados.
+   */
   static vec<FileInfo> filter(const vec<str>& input_sources, const bool& recursive)
   {
     vec<FileInfo> filtered_files{};  //!< Vetor de arquivos filtrados.
@@ -108,8 +168,24 @@ public:
         // [!] Se `entry` não for um diretório, mas for um arquivo, tenta adicionar direto na lista.
         else if (fs::is_regular_file(entry))
         {
-          // [!] Como não é um diretório, tenta adicionar na lista
-          try_push_file(entry, filtered_files);
+          str entry_extension{ entry.extension() };  // [!] Recupera a extensão do arquivo.
+          if (is_valid_file(entry_extension))
+          {
+            // [!] Como não é um diretório, tenta adicionar na lista
+            try_push_file(entry, filtered_files);
+          }
+          else
+          {
+            // [!] Se não for válido, exibe uma mensagem de alerta.
+            if (not entry_extension.empty())
+            {
+              std::cout << entry << ": Sorry, " << std::quoted(entry_extension) << " files are not supported at this time.\n";
+            }
+            else
+            {
+              std::cout << entry << ": Sorry, this type of files are not supported at this time.\n";
+            }
+          }
         }
         else
         {

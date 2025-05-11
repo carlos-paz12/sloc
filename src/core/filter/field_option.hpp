@@ -15,7 +15,7 @@
 #ifndef FIELD_OPTION_HPP
 #define FIELD_OPTION_HPP
 
-#include "aliases.hpp"  // `byte`
+#include "../common/aliases.hpp"  // `byte`
 
 /**
  * @enum FieldOption

@@ -12,17 +12,17 @@
  * @copyright Copyright (c) 2025
  *
  */
-#include <iomanip>
-#include <iostream>
-#include <sstream>
+#include <iomanip>   // `std::setw`
+#include <iostream>  // `std::cout`
+#include <sstream>   // `std::ostringstream`
 
-#include "aliases.hpp"
-#include "field_option.hpp"
-#include "file_info.hpp"
-#include "filter.hpp"
-#include "running_options.hpp"
-#include "sloc.hpp"
-#include "sort.hpp"
+#include "../common/aliases.hpp"
+#include "../core/filter/field_option.hpp"
+#include "../core/filter/filter.hpp"
+#include "../core/options/running_options.hpp"
+#include "../core/sloc/file_info.hpp"
+#include "../core/sloc/sloc.hpp"
+#include "../core/sort/sort.hpp"
 
 const char* help_message = R"(Welcome to sloc cpp, version 1.0, (c) DIMAp/UFRN.
 
@@ -123,17 +123,29 @@ str format_percentage(const std::size_t& value, std::size_t& total)
 
 void print_results_header(const std::size_t& max_filename_len, oss& table)
 {
-  table << str(max_filename_len + 92, '-') << "\n";
+  table << "┌";
+  for (size_t i{ 0 }; i < max_filename_len + 94; ++i)
+  {
+    table << "─";
+  }
+  table << "┐\n";
 
+  table << "│ ";
   table << std::left << std::setw(max_filename_len + 2) << "Filename";
   table << std::setw(16) << "Language";
   table << std::setw(16) << "Comments";
   table << std::setw(16) << "Doc Comments";
   table << std::setw(16) << "Blank";
   table << std::setw(16) << "Code";
-  table << std::setw(16) << "# of lines" << "\n";
+  table << std::setw(10) << "# of lines";
+  table << " │\n";
 
-  table << std::string(max_filename_len + 92, '-') << "\n";
+  table << "├";
+  for (size_t i{ 0 }; i < max_filename_len + 94; ++i)
+  {
+    table << "─";
+  }
+  table << "┤\n";
 
   std::cout << table.str();
   reset_stream(table);
@@ -143,15 +155,17 @@ void print_results_body(const RunningOptions& run_options, const std::size_t& ma
 {
   for (const auto& file : run_options.sources)
   {
-    size_t total_lines{ file.n_blank_lines + file.n_doc_comments + file.n_loc + file.n_reg_comments };
+    size_t total_lines{ file.n_blank_lines + file.n_doc_comments + file.n_loc + file.n_reg_comments + 2 };
 
+    table << "│ ";
     table << std::left << std::setw(max_filename_len + 2) << file.m_filename;
     table << std::setw(16) << get_language_name(file.m_type);
     table << std::setw(16) << format_percentage(file.n_reg_comments, total_lines);
     table << std::setw(16) << format_percentage(file.n_doc_comments, total_lines);
     table << std::setw(16) << format_percentage(file.n_blank_lines, total_lines);
     table << std::setw(16) << format_percentage(file.n_loc, total_lines);
-    table << std::setw(16) << file.n_lines << "\n";
+    table << std::setw(10) << file.n_lines;
+    table << " │\n";
   }
 
   std::cout << table.str();
@@ -160,16 +174,29 @@ void print_results_body(const RunningOptions& run_options, const std::size_t& ma
 
 void print_results_footer(const std::size_t& max_filename_len, std::ostringstream& table, FileInfo& sum_file)
 {
-  table << std::string(max_filename_len + 92, '-') << "\n";
 
+  table << "├";
+  for (size_t i{ 0 }; i < max_filename_len + 94; ++i)
+  {
+    table << "─";
+  }
+  table << "┤\n";
+
+  table << "│ ";
   table << std::left << std::setw(max_filename_len + 2 + 16) << "SUM";
   table << std::setw(16) << sum_file.n_reg_comments;
   table << std::setw(16) << sum_file.n_doc_comments;
   table << std::setw(16) << sum_file.n_blank_lines;
   table << std::setw(16) << sum_file.n_loc;
-  table << std::setw(16) << sum_file.n_lines << "\n";
+  table << std::setw(10) << sum_file.n_lines;
+  table << " │\n";
 
-  table << std::string(max_filename_len + 92, '-') << "\n";
+  table << "└";
+  for (size_t i{ 0 }; i < max_filename_len + 94; ++i)
+  {
+    table << "─";
+  }
+  table << "┘\n";
 
   std::cout << table.str();
   reset_stream(table);
@@ -194,15 +221,16 @@ void print_results(const RunningOptions& run_options)
   }
 
   // [!] 2. Cabeçalho geral.
-  table << "Files processed: " << run_options.sources.size() << "\n";
+  table << " Files processed: " << run_options.sources.size() << "\n";
 
   // [!] Se houver ordenação aplicada, mostra critério.
   if (run_options.sort_field != FieldOption::NONE)
   {
-    table << "Sorting: " << (run_options.ascending ? "ASC" : "DESC") << " by " << get_option_name(run_options.sort_field) << '\n';
+    table << " Sorting: " << (run_options.ascending ? "ASC" : "DESC") << " by " << get_option_name(run_options.sort_field) << '\n';
   }
 
   // HEADER {{{
+
   print_results_header(max_filename_len, table);  // [!] Printa o cabeçalho da tabela.
   // }}}
 
@@ -312,6 +340,8 @@ RunningOptions parse_arguments(int argc, char* argv[])
 
 int main(int argc, char* argv[])
 {
+  std::cout << " Welcome to sloc cpp, version 1.0, (c) DIMAp/UFRN.\n\n";
+
   // #1 Analisar argumentos da linha de comando
   RunningOptions run_options{ parse_arguments(argc, argv) };
 
